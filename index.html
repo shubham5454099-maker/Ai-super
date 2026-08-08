@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Super Pro 🚀</title>
 
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: linear-gradient(135deg, #0f172a, #1e3a8a, #0ea5e9);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+    }
+
+    #chatBox {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 15px;
+      height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    .msg {
+      margin: 8px 0;
+    }
+
+    input {
+      width: 70%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #38bdf8;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 15px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🤖 AI Super Pro</h1>
+
+<div class="container">
+
+  <!-- Chat -->
+  <div id="chatBox"></div>
+
+  <input id="message" placeholder="Type message..." />
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="startVoice()">🎤</button>
+
+  <!-- Image -->
+  <br><br>
+  <input id="prompt" placeholder="Generate image..." />
+  <button onclick="generateImage()">Generate</button>
+
+  <img id="imageBox"/>
+
+</div>
+
+<script>
+  function addMessage(text) {
+    const div = document.createElement("div");
+    div.className = "msg";
+    div.innerText = text;
+    document.getElementById("chatBox").appendChild(div);
+  }
+
+  async function sendMessage() {
+    const message = document.getElementById("message").value;
+    if (!message) return;
+
+    addMessage("You: " + message);
+
+    const res = await fetch(`/api/chat?message=${encodeURIComponent(message)}`);
+    const data = await res.json();
+
+    typeEffect("AI: " + data.reply);
+  }
+
+  // 🔥 Typing animation
+  function typeEffect(text) {
+    let i = 0;
+    const div = document.createElement("div");
+    div.className = "msg";
+    document.getElementById("chatBox").appendChild(div);
+
+    const interval = setInterval(() => {
+      div.innerText += text.charAt(i);
+      i++;
+      if (i >= text.length) clearInterval(interval);
+    }, 20);
+  }
+
+  // 🎤 Voice input
+  function startVoice() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+
+    recognition.onresult = function(event) {
+      const text = event.results[0][0].transcript;
+      document.getElementById("message").value = text;
+      sendMessage();
+    };
+
+    recognition.start();
+  }
+
+  // 🖼️ Image generator
+  async function generateImage() {
+    const prompt = document.getElementById("prompt").value;
+    if (!prompt) return;
+
+    const res = await fetch(`/api/image?prompt=${encodeURIComponent(prompt)}`);
+    const data = await res.json();
+
+    document.getElementById("imageBox").src = data.image;
+  }
+</script>
+
+</body>
+</html>
