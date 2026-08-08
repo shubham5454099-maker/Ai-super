@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Ultra</title>
+  <title>AI SUPER</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -15,6 +15,13 @@
       height: 100vh;
     }
 
+    header {
+      padding: 10px;
+      text-align: center;
+      background: #020617;
+      font-weight: bold;
+    }
+
     #chat {
       flex: 1;
       overflow-y: auto;
@@ -25,7 +32,8 @@
       padding: 10px;
       margin: 8px 0;
       border-radius: 10px;
-      max-width: 70%;
+      max-width: 75%;
+      word-wrap: break-word;
     }
 
     .user {
@@ -36,6 +44,11 @@
 
     .ai {
       background: #1e293b;
+    }
+
+    img {
+      border-radius: 10px;
+      margin-top: 5px;
     }
 
     #inputBox {
@@ -63,10 +76,12 @@
 
 <body>
 
+<header>🤖 AI SUPER</header>
+
 <div id="chat"></div>
 
 <div id="inputBox">
-  <input id="msg" placeholder="Type or speak..." />
+  <input id="msg" placeholder="Type message..." />
   <button onclick="startVoice()">🎤</button>
   <button onclick="send()">Send</button>
 </div>
@@ -74,31 +89,34 @@
 <script>
 const chat = document.getElementById("chat");
 
-// SEND MESSAGE
+function addMessage(text, type) {
+  chat.innerHTML += `<div class="msg ${type}">${text}</div>`;
+  chat.scrollTop = chat.scrollHeight;
+}
+
 async function send() {
   const input = document.getElementById("msg");
-  const text = input.value;
-
+  const text = input.value.trim();
   if (!text) return;
 
-  chat.innerHTML += `<div class="msg user">${text}</div>`;
+  addMessage(text, "user");
   input.value = "";
 
-  // IMAGE DETECT
+  // IMAGE MODE
   if (text.toLowerCase().includes("draw") || text.toLowerCase().includes("image")) {
     const res = await fetch("/api/image?prompt=" + encodeURIComponent(text));
     const data = await res.json();
 
-    chat.innerHTML += `<div class="msg ai"><img src="${data.image}" width="200"/></div>`;
+    addMessage(`<img src="${data.image}" width="200"/>`, "ai");
     speak("Here is your image");
     return;
   }
 
-  // TEXT AI
+  // CHAT MODE
   const res = await fetch("/api/chat?message=" + encodeURIComponent(text));
   const data = await res.json();
 
-  chat.innerHTML += `<div class="msg ai">${data.reply}</div>`;
+  addMessage(data.reply, "ai");
   speak(data.reply);
 }
 
@@ -123,4 +141,4 @@ function speak(text) {
 </script>
 
 </body>
-  </html>
+</html>
